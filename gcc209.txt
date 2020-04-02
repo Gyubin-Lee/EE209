@@ -1,0 +1,4 @@
+direction: /usr/local/bin/gcc209
+
+#!/bin/bash
+gcc -Wall -Werror -ansi -pedantic -std=c99 "$@"
