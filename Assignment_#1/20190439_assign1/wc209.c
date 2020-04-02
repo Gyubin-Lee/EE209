@@ -7,7 +7,7 @@
 
 /*global variables 'line', 'word', 'charac' indicates 
 the number of line, word, character. 'temp'is use for indicating
-the line where '/*' start*/
+the line where the comment start*/
 
 int line = 1; int word = 0; int charac = 0; int temp = 1;
 

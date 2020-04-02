@@ -31,7 +31,7 @@ temp:
 	.globl	newline
 	.type	newline, @function
 newline:
-.LFB6:
+.LFB0:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
@@ -50,12 +50,12 @@ newline:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE6:
+.LFE0:
 	.size	newline, .-newline
 	.globl	space
 	.type	space, @function
 space:
-.LFB7:
+.LFB1:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
@@ -79,7 +79,7 @@ space:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE7:
+.LFE1:
 	.size	space, .-space
 	.section	.rodata
 .LC0:
@@ -95,7 +95,7 @@ space:
 	.globl	main
 	.type	main, @function
 main:
-.LFB8:
+.LFB2:
 	.cfi_startproc
 	endbr64
 	pushq	%rbp
@@ -108,7 +108,7 @@ main:
 	jmp	.L7
 .L34:
 	cmpl	$6, -8(%rbp)
-	ja	.L39
+	ja	.L8
 	movl	-8(%rbp), %eax
 	leaq	0(,%rax,4), %rdx
 	leaq	.L10(%rip), %rax
@@ -344,8 +344,8 @@ main:
 	movl	%eax, charac(%rip)
 	movl	$1, -8(%rbp)
 	jmp	.L7
-.L39:
-	leaq	__PRETTY_FUNCTION__.2985(%rip), %rcx
+.L8:
+	leaq	__PRETTY_FUNCTION__.2222(%rip), %rcx
 	movl	$121, %edx
 	leaq	.LC0(%rip), %rsi
 	leaq	.LC1(%rip), %rdi
@@ -387,12 +387,12 @@ main:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
-.LFE8:
+.LFE2:
 	.size	main, .-main
 	.section	.rodata
-	.type	__PRETTY_FUNCTION__.2985, @object
-	.size	__PRETTY_FUNCTION__.2985, 5
-__PRETTY_FUNCTION__.2985:
+	.type	__PRETTY_FUNCTION__.2222, @object
+	.size	__PRETTY_FUNCTION__.2222, 5
+__PRETTY_FUNCTION__.2222:
 	.string	"main"
 	.ident	"GCC: (Ubuntu 9.2.1-9ubuntu2) 9.2.1 20191008"
 	.section	.note.GNU-stack,"",@progbits
