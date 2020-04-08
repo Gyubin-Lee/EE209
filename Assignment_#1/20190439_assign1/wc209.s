@@ -1,5 +1,4 @@
 	.file	"wc209.c"
-	.text
 	.globl	line
 	.data
 	.align 4
@@ -33,7 +32,6 @@ temp:
 newline:
 .LFB0:
 	.cfi_startproc
-	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
@@ -57,7 +55,6 @@ newline:
 space:
 .LFB1:
 	.cfi_startproc
-	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
@@ -97,7 +94,6 @@ space:
 main:
 .LFB2:
 	.cfi_startproc
-	endbr64
 	pushq	%rbp
 	.cfi_def_cfa_offset 16
 	.cfi_offset 6, -16
@@ -113,23 +109,23 @@ main:
 	leaq	0(,%rax,4), %rdx
 	leaq	.L10(%rip), %rax
 	movl	(%rdx,%rax), %eax
-	cltq
-	leaq	.L10(%rip), %rdx
+	movslq	%eax, %rdx
+	leaq	.L10(%rip), %rax
 	addq	%rdx, %rax
-	notrack jmp	*%rax
+	jmp	*%rax
 	.section	.rodata
 	.align 4
 	.align 4
 .L10:
-	.long	.L16-.L10
-	.long	.L15-.L10
-	.long	.L14-.L10
-	.long	.L13-.L10
-	.long	.L12-.L10
-	.long	.L11-.L10
 	.long	.L9-.L10
+	.long	.L11-.L10
+	.long	.L12-.L10
+	.long	.L13-.L10
+	.long	.L14-.L10
+	.long	.L15-.L10
+	.long	.L16-.L10
 	.text
-.L16:
+.L9:
 	call	__ctype_b_loc@PLT
 	movq	(%rax), %rax
 	movl	-4(%rbp), %edx
@@ -165,7 +161,7 @@ main:
 	movl	%eax, charac(%rip)
 	movl	$1, -8(%rbp)
 	jmp	.L7
-.L15:
+.L11:
 	call	__ctype_b_loc@PLT
 	movq	(%rax), %rax
 	movl	-4(%rbp), %edx
@@ -195,7 +191,7 @@ main:
 	addl	$1, %eax
 	movl	%eax, charac(%rip)
 	jmp	.L7
-.L14:
+.L12:
 	call	__ctype_b_loc@PLT
 	movq	(%rax), %rax
 	movl	-4(%rbp), %edx
@@ -235,7 +231,7 @@ main:
 	movl	%eax, charac(%rip)
 	movl	$1, -8(%rbp)
 	jmp	.L7
-.L12:
+.L14:
 	cmpl	$42, -4(%rbp)
 	jne	.L24
 	movl	$5, -8(%rbp)
@@ -245,7 +241,7 @@ main:
 	jne	.L7
 	call	newline
 	jmp	.L7
-.L11:
+.L15:
 	cmpl	$47, -4(%rbp)
 	jne	.L26
 	movl	charac(%rip), %eax
@@ -264,7 +260,7 @@ main:
 .L28:
 	movl	$4, -8(%rbp)
 	jmp	.L7
-.L9:
+.L16:
 	call	__ctype_b_loc@PLT
 	movq	(%rax), %rax
 	movl	-4(%rbp), %edx
@@ -345,7 +341,7 @@ main:
 	movl	$1, -8(%rbp)
 	jmp	.L7
 .L8:
-	leaq	__PRETTY_FUNCTION__.2222(%rip), %rcx
+	leaq	__PRETTY_FUNCTION__.2263(%rip), %rcx
 	movl	$121, %edx
 	leaq	.LC0(%rip), %rsi
 	leaq	.LC1(%rip), %rdi
@@ -390,25 +386,9 @@ main:
 .LFE2:
 	.size	main, .-main
 	.section	.rodata
-	.type	__PRETTY_FUNCTION__.2222, @object
-	.size	__PRETTY_FUNCTION__.2222, 5
-__PRETTY_FUNCTION__.2222:
+	.type	__PRETTY_FUNCTION__.2263, @object
+	.size	__PRETTY_FUNCTION__.2263, 5
+__PRETTY_FUNCTION__.2263:
 	.string	"main"
-	.ident	"GCC: (Ubuntu 9.2.1-9ubuntu2) 9.2.1 20191008"
+	.ident	"GCC: (Ubuntu 5.5.0-1ubuntu2) 5.4.1 20171010"
 	.section	.note.GNU-stack,"",@progbits
-	.section	.note.gnu.property,"a"
-	.align 8
-	.long	 1f - 0f
-	.long	 4f - 1f
-	.long	 5
-0:
-	.string	 "GNU"
-1:
-	.align 8
-	.long	 0xc0000002
-	.long	 3f - 2f
-2:
-	.long	 0x3
-3:
-	.align 8
-4:
