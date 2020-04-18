@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include "str.h"
 
 size_t StrGetLength(const char *pcSrc){
   int i = 0;
@@ -52,7 +53,7 @@ int StrCompare(const char *s1, const char *s2){
   return (*s1_temp - *s2_temp);
 }
 
-char *StrSearch(const char *haystack, const char *needle){
+const char *StrSearch(const char *haystack, const char *needle){
   const char* h_temp;
   const char* n_temp;
   h_temp = haystack;
@@ -95,34 +96,4 @@ char *StrConcat(char *dest, const char *src){
   *dest_temp = '\0';
 
   return dest;
-} 
-  
-int main(){
-  char p[] = "What the hell";
-  unsigned long len = StrGetLength(p);
-  printf("%ld\n", len);
-
-  char a[] = "I am a good boy";
-  char b[200];
-
-  char *res = StrCopy(b, a);
-
-  printf("%s\n", res);
-
-  char *c = "kkkk";
-  char *d = "kkkkk";
-
-  printf("%d\n", StrCompare(c, d));
-
-  char *e = "abcdefgabcde";
-  char *f = "f";
-
-  printf("%s\n", StrSearch(e, f));
-
-  char g[200] = "abcdefg";
-  char *h = "hijklmn";
-
-  printf("%s\n", StrConcat(g, h));
-  
-  return 0;
 }
