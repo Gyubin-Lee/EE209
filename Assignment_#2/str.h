@@ -3,9 +3,9 @@
 #include <unistd.h>
 
 size_t StrGetLength(const char *pcSrc);
-char *StrCopy(char *pcDest, const char *pcSrc);
+char *StrCopy(char *dest, const char *src);
 int StrCompare(const char *s1, const char *s2);
-const char *StrSearch(const char *haystack, const char *needle);
+char *StrSearch(const char *haystack, const char *needle);
 char *StrConcat(char *dest, const char *src);
 
-#endif /*_STR_H_*/
+#endif

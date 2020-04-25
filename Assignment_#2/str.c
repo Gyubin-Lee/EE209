@@ -7,7 +7,7 @@ size_t StrGetLength(const char *pcSrc){
   const char *temp;
   temp = pcSrc;
   
-  assert(pcSrc != NULL);
+  assert(pcSrc);
 
   while(*temp != '\0'){
     i++;
@@ -18,13 +18,11 @@ size_t StrGetLength(const char *pcSrc){
 }
 
 char *StrCopy(char *dest, const char *src){
-  char* dest_temp;
-  const char* src_temp;
-  dest_temp = dest;
-  src_temp = src;
+  char* dest_temp = dest;
+  const char* src_temp = src;
 
-  assert(dest != NULL);
-  assert(src != NULL);
+  assert(dest);
+  assert(src);
 
   while(*src_temp != '\0'){
     *dest_temp = *src_temp;
@@ -37,10 +35,11 @@ char *StrCopy(char *dest, const char *src){
 }
 
 int StrCompare(const char *s1, const char *s2){
-  const char* s1_temp;
-  const char* s2_temp;
-  s1_temp = s1;
-  s2_temp = s2;
+  const char* s1_temp = s1;
+  const char* s2_temp = s2;
+
+  assert(s1);
+  assert(s2);
 
   while(*s1_temp != '\0' && *s2_temp != '\0'){
     if (*s1_temp != *s2_temp){
@@ -53,36 +52,40 @@ int StrCompare(const char *s1, const char *s2){
   return (*s1_temp - *s2_temp);
 }
 
-const char *StrSearch(const char *haystack, const char *needle){
-  const char* h_temp;
-  const char* n_temp;
-  h_temp = haystack;
-  n_temp = needle;
+char *StrSearch(const char *haystack, const char *needle){
+  char* h_temp = (char*)haystack;
+  const char* n_temp = needle;
+
+  assert(haystack);
+  assert(needle);
+  
+  if(*n_temp == '\0') return h_temp;
 
   while(*h_temp != '\0'){
     if(*h_temp == *n_temp){
-      const char* h_compare;
-      const char* n_compare;
-      h_compare = h_temp+1;
-      n_compare = n_temp+1;
+      char* h_compare = h_temp+1;
+      const char* n_compare = n_temp+1;
 
       while(*h_compare == *n_compare && *n_compare != '\0'){
-	h_compare++;
-	n_compare++;
+	      h_compare++;
+	      n_compare++;
       }
 
       if(*n_compare == '\0') return h_temp;
     }
     h_temp++;
   }
+
+  return NULL;
 }
 
 char *StrConcat(char *dest, const char *src){
-  const char *src_temp;
-  char *dest_temp;
-  src_temp = src;
-  dest_temp = dest;
+  const char *src_temp = src;
+  char *dest_temp = dest;
 
+  assert(dest);
+  assert(src);
+  
   while(*dest_temp != '\0'){
     dest_temp++;
   }
