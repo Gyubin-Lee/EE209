@@ -77,7 +77,8 @@ DoFind(const char *pcSearch)
       fprintf(stderr, "Error: input line is too long\n");
       return FALSE;
     }
-
+    
+    /*if there is an input string in the buf, print the line in the buf*/
     if (StrSearch(buf, pcSearch)) printf("%s", buf);
   }
    

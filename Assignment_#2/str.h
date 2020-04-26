@@ -1,6 +1,5 @@
 #ifndef _STR_H_
 #define _STR_H_
-#include <unistd.h>
 
 size_t StrGetLength(const char *pcSrc);
 char *StrCopy(char *dest, const char *src);
