@@ -1,3 +1,4 @@
+/*Gyubin Lee, Assignment_#2, str.h*/
 #ifndef _STR_H_
 #define _STR_H_
 

@@ -1,3 +1,4 @@
+/*Gyubin Lee, Assignment_#2, sgrep.c*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> /* for skeleton code */
@@ -125,13 +126,15 @@ DoReplace(const char *pcString1, const char *pcString2)
   }
 
   while (fgets(buf, sizeof(buf), stdin)) {
-    /*line validation*/
     char *buf_point = buf;
+
+    /*line validation*/
     if ((buf_len = StrGetLength(buf)) > MAX_STR_LEN) {
       fprintf(stderr, "Error: input line is too long\n");
       return FALSE;
     }
     
+    /*Do the replace when the pcString1 is found*/
     while(*buf_point != '\0'){
         point = StrSearch(buf_point, pcString1);
         if(point != buf_point){

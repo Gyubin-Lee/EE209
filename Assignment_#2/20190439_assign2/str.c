@@ -1,7 +1,11 @@
+/*Gyubin Lee, Assignment_#2, str.c*/
+
 #include <stdio.h>
 #include <assert.h>
 #include "str.h"
 
+/*This function returns the length of the string
+  that *pcSrc points*/
 size_t StrGetLength(const char *pcSrc){
   int i = 0;
   const char *temp;
@@ -17,6 +21,8 @@ size_t StrGetLength(const char *pcSrc){
   return (size_t)i;
 }
 
+/*This function copies the contents in the *src
+  to the *dest*/
 char *StrCopy(char *dest, const char *src){
   char* dest_temp = dest;
   const char* src_temp = src;
@@ -34,6 +40,9 @@ char *StrCopy(char *dest, const char *src){
   return dest;
 }
 
+/*This function returns positive integer if *s1
+is bigger than *s2, 0 if they are same, and 
+negative integer if *s1 is smaller than *s2*/
 int StrCompare(const char *s1, const char *s2){
   const char* s1_temp = s1;
   const char* s2_temp = s2;
@@ -52,6 +61,9 @@ int StrCompare(const char *s1, const char *s2){
   return (*s1_temp - *s2_temp);
 }
 
+/*This function returns the pointer that points the location
+where *needle starts in the *haystack. If the haystack string
+does not contain the needle string, it returns null pointer*/
 char *StrSearch(const char *haystack, const char *needle){
   char* h_temp = (char*)haystack;
   const char* n_temp = needle;
@@ -79,6 +91,8 @@ char *StrSearch(const char *haystack, const char *needle){
   return NULL;
 }
 
+/*This function concat *src next to the *dest, and
+  return pointer dest*/
 char *StrConcat(char *dest, const char *src){
   const char *src_temp = src;
   char *dest_temp = dest;
