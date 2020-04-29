@@ -187,7 +187,7 @@ DoDiff(const char *file1, const char *file2)
   char buf2[MAX_STR_LEN + 2];
   int file1_len = StrGetLength(file1);
   int file2_len = StrGetLength(file2);
-  unsigned long line = 1;
+  unsigned long line = 0;
   int len;
 
   /*arguement validation*/
@@ -223,7 +223,20 @@ DoDiff(const char *file1, const char *file2)
     } else if (!f1 && !f2){ //end of buffors
       break;
     } else{
-       /*line validation*/
+      line++;
+      
+      /*if the line do not end with \n, consider
+      considered as if it has '\n' at the end*/
+      if(*(f1+StrGetLength(f1)-1) != '\n'){	
+	*(f1+StrGetLength(f1)+1) = 0;
+	*(f1+StrGetLength(f1)) = '\n';
+      }
+      if(*(f2+StrGetLength(f2)-1) != '\n'){
+	*(f2+StrGetLength(f2)+1) = 0;
+	*(f2+StrGetLength(f2)) = '\n';
+      }
+
+      /*line validation*/
       if((len = StrGetLength(f1)) > MAX_STR_LEN){
         fprintf(stderr, "Error: input line %s is too long\n", file1);
         return FALSE;
@@ -233,11 +246,11 @@ DoDiff(const char *file1, const char *file2)
         return FALSE;
       }    
       
-      if(StrCompare(f1, f2) != 0){ //if f1 and f2 are different, this code will be executed 
+      /*if f1 and f2 are different, this code will be executed*/ 
+      if(StrCompare(f1, f2) != 0){
         printf("%s@%lu:%s", file1, line, f1);
         printf("%s@%lu:%s", file2, line, f2);
       }
-      line++;
     }
   }
   
