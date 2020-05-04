@@ -14,7 +14,7 @@ struct UserInfo {
 };
 
 struct DB {
-  struct UserInfo **pArray;   // pointer to the array
+  struct UserInfo *pArray;   // pointer to the array
   int curArrSize;            // current array size (max # of elements)
   int numItems;              // # of stored items, needed to determine
 			     // # whether the array should be expanded
@@ -59,9 +59,6 @@ DestroyCustomerDB(DB_T d)
   }
 
   free(d);
-
-  assert(0);
-  return NULL;
 }
 /*--------------------------------------------------------------------*/
 int
@@ -78,7 +75,7 @@ RegisterCustomer(DB_T d, const char *id,
 
   if(d->numItems != 0){
     for(i=0;i<d->curArrSize;i++){
-      if(!strcmp(d->pArray[i]->id, id) || !strcmp(d->pArray[i]->name, name)){
+      if(!strcmp(d->pArray[i].id, id) || !strcmp(d->pArray[i].name, name)){
         fprintf(stderr, "Item already exists");
         return -1;
       }
@@ -94,29 +91,25 @@ RegisterCustomer(DB_T d, const char *id,
       return -1;
     }
   }
-
+  
   char *id_temp, *name_temp;
-  struct UserInfo *user;
+  struct UserInfo user;
 
   id_temp = strdup(id);
   name_temp = strdup(name);
 
-  user = calloc(1, sizeof(struct UserInfo));
-  if(!user){
-    fprintf(stderr,"Fail to calloc user");
-    return -1;
-  }
-
-  user->id = id_temp;
-  user->name = name_temp;
-  user->purchase = purchase;
+  user.id = id_temp;
+  user.name = name_temp;
+  user.purchase = purchase;
 
   for(i=0;i<d->curArrSize;i++){
-    if(!d->pArray[i]){
+    struct UserInfo *temp = d->pArray;
+    if(temp == NULL){
       d->pArray[i] = user;
       d->numItems++;
       return 0;
     }
+    temp++;
   }
 
   assert(0);
