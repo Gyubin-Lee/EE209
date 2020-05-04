@@ -14,7 +14,7 @@ struct UserInfo {
 };
 
 struct DB {
-  struct UserInfo *pArray;   // pointer to the array
+  struct UserInfo **pArray;   // pointer to the array
   int curArrSize;            // current array size (max # of elements)
   int numItems;              // # of stored items, needed to determine
 			     // # whether the array should be expanded
@@ -33,8 +33,8 @@ CreateCustomerDB(void)
     return NULL;
   }
   d->curArrSize = UNIT_ARRAY_SIZE; // start with 1024 elements
-  d->pArray = (struct UserInfo *)calloc(d->curArrSize,
-               sizeof(struct UserInfo));
+  d->pArray = (struct UserInfo **)calloc(d->curArrSize,
+               sizeof(struct UserInfo*));
   if (d->pArray == NULL) {
     fprintf(stderr, "Can't allocate a memory for array of size %d\n",
 	    d->curArrSize);   
@@ -54,6 +54,12 @@ DestroyCustomerDB(DB_T d)
     return;
   }
 
+  for(unsigned int i=0;i<d->curArrSize; i++){
+    if(d->pArray[i]){
+      free(d->pArray[i]);
+    }
+  }
+
   if(d->pArray){
     free(d->pArray);
   }
@@ -71,45 +77,48 @@ RegisterCustomer(DB_T d, const char *id,
     return -1;
   }
 
-  int i;
+  unsigned int i;
 
-  if(d->numItems != 0){
+  if(d->numItems){
     for(i=0;i<d->curArrSize;i++){
-      if(!strcmp(d->pArray[i].id, id) || !strcmp(d->pArray[i].name, name)){
-        fprintf(stderr, "Item already exists");
+      if(!(d->pArray[i])){
+        continue;
+      }
+
+      if(!strcmp(d->pArray[i]->id, id) || !strcmp(d->pArray[i]->name, name)){
+        fprintf(stderr, "Item already exist\n");
         return -1;
       }
     }
   }
 
   if(d->curArrSize == d->numItems){
-    struct UserInfo *old = d->pArray;
-    d->curArrSize*=2;
-    d->pArray = (struct UserInfo*)realloc(old, d->curArrSize*sizeof(struct UserInfo));
+    struct UserInfo **past = d->pArray;
+    unsigned int past_s = d->curArrSize;
+
+    d->curArrSize += UNIT_ARRAY_SIZE;
+    d->pArray = calloc(d->curArrSize, sizeof(struct UserInfo*));
+    
     if(!d->pArray){
-      fprintf(stderr, "Fail to realloc pArray");
+      fprintf(stderr, "Fail to realloc pArray\n");
       return -1;
     }
+
+    memcpy(d->pArray, past, past_s*sizeof(struct UserInfo*));
   }
   
-  char *id_temp, *name_temp;
-  struct UserInfo user;
+  struct UserInfo* user = calloc(1, sizeof(struct UserInfo));
 
-  id_temp = strdup(id);
-  name_temp = strdup(name);
-
-  user.id = id_temp;
-  user.name = name_temp;
-  user.purchase = purchase;
+  user->id = strdup(id);
+  user->name = strdup(name);
+  user->purchase = purchase;
 
   for(i=0;i<d->curArrSize;i++){
-    struct UserInfo *temp = d->pArray;
-    if(temp == NULL){
+    if(!(d->pArray[i])){
       d->pArray[i] = user;
       d->numItems++;
       return 0;
     }
-    temp++;
   }
 
   assert(0);
@@ -120,7 +129,33 @@ int
 UnregisterCustomerByID(DB_T d, const char *id)
 {
   /* fill out this function */
-  assert(0);
+
+  if(!d || !id){
+    return (-1);
+  }
+
+  if(d->numItems){
+    for(unsigned int i=0;i<d->curArrSize;i++){  
+      if(!d->pArray[i]){
+        continue;
+      }
+      
+      if(!(strcmp(d->pArray[i]->id, id))){
+        free(d->pArray[i]->id);
+        free(d->pArray[i]->name);
+        free(d->pArray[i]);
+
+        d->pArray[i] = NULL;
+        d->numItems--;
+
+        printf("remove success\n");
+        return 0;
+      }
+    }
+  }
+
+  fprintf(stderr, "No such id\n");
+  //assert(0);
   return (-1);
 }
 
@@ -129,7 +164,32 @@ int
 UnregisterCustomerByName(DB_T d, const char *name)
 {
   /* fill out this function */
-  assert(0);
+
+  if(!d || !name){
+    return (-1);
+  }
+
+  if(d->numItems){
+    for(unsigned int i=0;i<d->curArrSize;i++){
+      if(!d->pArray[i]){
+        continue;
+      }
+      
+      if(!(strcmp(d->pArray[i]->name, name))){
+        free(d->pArray[i]->id);
+        free(d->pArray[i]->name);
+        free(d->pArray[i]);
+
+        d->pArray[i] = NULL;
+        d->numItems--;
+
+        return 0;
+      }
+    }
+  }
+
+  fprintf(stderr, "No such name\n");
+  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
@@ -137,7 +197,25 @@ int
 GetPurchaseByID(DB_T d, const char* id)
 {
   /* fill out this function */
-  assert(0);
+
+  if(!d || !id) return (-1);
+
+  if(d->numItems){
+    for(int i=0;i<d->curArrSize;i++){
+      struct UserInfo *temp = d->pArray[i];
+
+      if(!temp){
+        continue;
+      }
+
+      if(!(strcmp(temp->id, id))){
+        return temp->purchase;
+      }
+    }
+  }
+
+  fprintf(stderr, "No such id");
+  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
@@ -145,7 +223,24 @@ int
 GetPurchaseByName(DB_T d, const char* name)
 {
   /* fill out this function */
-  assert(0);
+  if(!d || !name) return (-1);
+
+  if(d->numItems){
+    for(int i=0;i<d->curArrSize;i++){
+      struct UserInfo *temp = d->pArray[i];
+      
+      if(!temp){
+        continue;
+      }
+
+      if(!(strcmp(temp->name, name))){
+        return temp->purchase;
+      }
+    }
+  }
+
+  fprintf(stderr, "No such name");
+  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
@@ -153,6 +248,19 @@ int
 GetSumCustomerPurchase(DB_T d, FUNCPTR_T fp)
 {
   /* fill out this function */
-  assert(0);
-  return (-1);
+  if(!d || !fp) return (-1);
+
+  int sum = 0;
+
+  for(unsigned int i=0;i<d->curArrSize;i++){ 
+    struct UserInfo *temp = d->pArray[i];
+    
+    if(!temp){
+      continue;
+    }
+
+    sum += fp(temp->id, temp->name, temp->purchase);
+  }
+
+  return sum;
 }
