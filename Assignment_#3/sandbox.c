@@ -1,23 +1,20 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 int main(){
-    int *arr_p = (int*)malloc(sizeof(int)*3);
+    char **p = calloc(1000, sizeof(char*));
 
-    for(int i=0; i<3;i++){
-        arr_p[i] = i;
-        printf("%d\n", arr_p[i]);
-    }
+    p[3] = "aaaa";
+    printf("pointer p:%p\n", p);
+    printf("pointer p[3]:%p\n", p[3]);
+    printf("content p[3]:%s\n", p[3]);
 
-    int *old = arr_p;
-    arr_p = realloc(old, sizeof(int)*6);
+    char *q = p[3];
+    free(q);
 
-    for(int j=3; j<6;j++){
-        arr_p[j] = j;
-    }
-
-    for(int k=0;k<6;k++){
-        printf("%d\n", arr_p[k]);
-    }
+    printf("pointer p:%p\n", p);
+    printf("pointer p[3]:%p\n", p[3]);
+    printf("content p[3]:%s\n", p[3]);
 
 }
