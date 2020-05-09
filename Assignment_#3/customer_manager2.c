@@ -35,32 +35,101 @@ static int hash_function(const char *pcKey, int iBucketCount)
    return (int)(uiHash % (unsigned int)iBucketCount);
 }
 
+/*Just for debugging*/
 static void iteration(DB_T d){
   struct UserNode *temp;
-  int i;
+  int i, count;
 
   printf("------Iterating by ID------\n");
-  printf("The number of Items is %d\n", d->numItems);
+  count = 0;
   for(i=0;i<d->curHashSize;i++){
     if(d->hashtable_id[i]->next_id){
       temp = d->hashtable_id[i]->next_id;
       while(temp){
         printf("(%s, %s, %d)\n", temp->id, temp->name, temp->purchase);
         temp = temp->next_id;
+        count++;
       }
     }
   }
+  printf("The number of Items is %d\n", count);
+  count=0;
   printf("-----Iterating by name-----\n");
-  printf("The number of Items is %d\n", d->numItems);
   for(i=0;i<d->curHashSize;i++){
     if(d->hashtable_name[i]->next_name){
       temp = d->hashtable_name[i]->next_name;
       while(temp){
         printf("(%s, %s, %d)\n", temp->id, temp->name, temp->purchase);
         temp = temp->next_name;
+        count++;
       }
     }
   }
+  printf("The number of Items is %d\n", count);
+}
+
+/*resize the size of the hash-tables*/
+static void resize(DB_T d){
+  struct UserNode **newIDTable, **newNameTable;
+  struct UserNode *head, *temp, *next, *user;
+  int i, hash_id, hash_name;
+
+  int newSize = 2*d->curHashSize;
+
+  /*make new ID hashtable*/
+  newIDTable = (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
+  if(newIDTable){
+    for(i=0;i<newSize;i++){
+      head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
+      if(head) newIDTable[i] = head;
+    }
+  }
+  /*make new Name hashtable*/
+  newNameTable = (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
+  if(newNameTable){
+    for(i=0;i<newSize;i++){
+      head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
+      if(head) newNameTable[i] = head;
+    }
+  }
+
+  /*copy user information*/
+  for(i=0;i<d->curHashSize;i++){
+    temp = d->hashtable_id[i]->next_id;
+    while(temp){
+      user = (struct UserNode*)calloc(1, sizeof(struct UserNode));
+      user->id = strdup(temp->id);
+      user->name = strdup(temp->name);
+      user->purchase = temp->purchase;
+      temp = temp->next_id;
+      
+      hash_id = hash_function(user->id, newSize);
+      hash_name = hash_function(user->name, newSize);
+
+      head = newIDTable[hash_id];
+      user->next_id = head->next_id;
+      head->next_id = user;
+
+      head = newNameTable[hash_name];
+      user->next_name = head->next_name;
+      head->next_name = user;
+    }
+  }
+
+  /*destroy previous tables*/
+  for(int b=0;b<d->curHashSize;b++){
+    for(temp=d->hashtable_id[b];temp!=NULL;temp=next){
+      next = temp->next_id;
+      free(temp);
+    }
+  }
+  free(d->hashtable_id);
+  free(d->hashtable_name);
+
+  /*uptade DB_T b*/
+  d->hashtable_id = newIDTable;
+  d->hashtable_name = newNameTable;
+  d->curHashSize = newSize;
 }
 
 /*--------------non-static functions-----------------*/
@@ -125,6 +194,11 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
     return -1;
   }
 
+  /*resize*/
+  if(d->numItems > 0.75*d->curHashSize && d->curHashSize<=2^19){
+    resize(d);
+  }
+
   unsigned int i;
   int hash_id = hash_function(id, d->curHashSize);
   int hash_name = hash_function(name, d->curHashSize);
@@ -150,8 +224,6 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
       temp = temp->next_name;
     }
   }
-
-  /*resize*/
 
   /*register*/
   struct UserNode *newUser = (struct UserNode*)calloc(1, sizeof(struct UserNode));
@@ -284,7 +356,7 @@ int GetPurchaseByID(DB_T d, const char* id){
     }
   }
 
-  fprintf(stderr, "No such id");
+  fprintf(stderr, "No such id\n");
   return (-1);
 }
 
@@ -305,7 +377,7 @@ int GetPurchaseByName(DB_T d, const char* name){
     }
   }
 
-  fprintf(stderr, "No such name");
+  fprintf(stderr, "No such name\n");
   return (-1);
 }
 

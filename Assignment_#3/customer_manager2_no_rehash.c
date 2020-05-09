@@ -13,9 +13,7 @@ struct UserNode{
   char *id;                  // customer id
   int purchase;              // purchase amount (> 0)
   struct UserNode *next_name;
-  struct UserNode *prev_name;
   struct UserNode *next_id;
-  struct UserNode *prev_id;
 };
 
 struct DB{
@@ -42,6 +40,7 @@ static void iteration(DB_T d){
   int i;
 
   printf("------Iterating by ID------\n");
+  printf("The number of Items is %d\n", d->numItems);
   for(i=0;i<d->curHashSize;i++){
     if(d->hashtable_id[i]->next_id){
       temp = d->hashtable_id[i]->next_id;
@@ -52,6 +51,7 @@ static void iteration(DB_T d){
     }
   }
   printf("-----Iterating by name-----\n");
+  printf("The number of Items is %d\n", d->numItems);
   for(i=0;i<d->curHashSize;i++){
     if(d->hashtable_name[i]->next_name){
       temp = d->hashtable_name[i]->next_name;
@@ -87,8 +87,6 @@ DB_T CreateCustomerDB(void){
     }
     d->hashtable_id = table;
   }
-
-
   /*make name hashtable*/
   table = (struct UserNode **)calloc(BASE_SIZE, sizeof(struct UserNode *));
   if(table){
@@ -100,7 +98,7 @@ DB_T CreateCustomerDB(void){
   }
 }
 
-/* destory db and its associated memory */
+/*destory db and its associated memory */
 void DestroyCustomerDB(DB_T d){
   if(!d) return;
 
@@ -131,25 +129,25 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
   int hash_id = hash_function(id, d->curHashSize);
   int hash_name = hash_function(name, d->curHashSize);
   
-  struct UserNode *usernode, *next;
+  struct UserNode *temp, *next;
 
   /*check whether the item already exists*/
   if(d->numItems){
-    for(usernode = d->hashtable_id[hash_id]->next_id;usernode!=NULL;usernode = next){
-      if(!strcmp(usernode->id, id)){
-        fprintf(stderr, "ID already exist\n");
+    temp = d->hashtable_id[hash_id]->next_id;
+    while(temp){
+      if(!strcmp(temp->id, id)){
+        fprintf(stderr, "ID already exists\n");
         return -1;
       }
-      next = usernode->next_id;
+      temp = temp->next_id;
     }
-  }
-  if(d->numItems){
-    for(usernode = d->hashtable_name[hash_name]->next_name;usernode!=NULL;usernode = next){
-      if(!strcmp(usernode->name, name)){
-        fprintf(stderr, "Name already exist\n");
+    temp = d->hashtable_name[hash_name]->next_name;
+    while(temp){
+      if(!strcmp(temp->name, name)){
+        fprintf(stderr, "Name already exists\n");
         return -1;
       }
-      next = usernode->next_name;
+      temp = temp->next_name;
     }
   }
 
@@ -165,19 +163,11 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
   struct UserNode *head;
   
   head = d->hashtable_id[hash_id];
-  newUser->prev_id = head;
   newUser->next_id = head->next_id;
-  if(head->next_id){
-    head->next_id->prev_id = newUser;
-  }
   head->next_id = newUser;
 
   head = d->hashtable_name[hash_name];
-  newUser->prev_name = head;
   newUser->next_name = head->next_name;
-  if(head->next_name){
-    head->next_name->prev_name = newUser;
-  }
   head->next_name = newUser;
 
   d->numItems++;
@@ -195,33 +185,41 @@ int UnregisterCustomerByID(DB_T d, const char *id){
   }
 
   int hash_id = hash_function(id, d->curHashSize);
-  struct UserNode *temp, *next;
+  struct UserNode *temp_id, *prev_id, *temp_name, *prev_name;
 
-  for(temp=d->hashtable_id[hash_id]->next_id;temp!=NULL;temp=next){
-    if(!strcmp(temp->id, id)){
-      if(temp->prev_id){
-        temp->prev_id->next_id = temp->next_id;
+  if(d->numItems){
+    temp_id = d->hashtable_id[hash_id]->next_id;
+    prev_id = d->hashtable_id[hash_id];
+    while(temp_id){
+      if(!strcmp(temp_id->id, id)){
+        /*remove from ID hash table*/
+        prev_id->next_id = temp_id->next_id;
+
+        /*remove from name hash table*/
+        int hash_name = hash_function(temp_name->name, d->curHashSize);
+        temp_name = d->hashtable_name[hash_name]->next_name;
+        prev_name = d->hashtable_name[hash_name];
+        while(temp_name){
+          if(temp_id == temp_name){
+            prev_name->next_name = temp_name->next_name;
+            break;
+          }
+          prev_name = temp_name;
+          temp_name = temp_name->next_name;
+        }
+        free(temp_id);
+        
+        d->numItems--;
+        //iteration(d);
+        return 0;
       }
-      if(temp->prev_name){
-        temp->prev_name->next_name = temp->next_name;
-      }
-      if(temp->next_id){
-        temp->next_id->prev_id = temp->prev_id;
-      }
-      if(temp->next_name){
-        temp->next_name->prev_name = temp->prev_name;
-      }
-      free(temp);
-      d->numItems--;
-      //iteration(d);
-      return 0;
+      prev_id = temp_id;
+      temp_id = temp_id->next_id;
     }
-    next = temp->next_id;
   }
 
-  fprintf(stderr, "No such name\n");
-  //iteration(d);
-  return (-1);
+  fprintf(stderr, "No such ID\n");
+  return (-1);  
 }
 
 /* unregister a customer with 'name' */
@@ -231,32 +229,40 @@ int UnregisterCustomerByName(DB_T d, const char *name){
   }
 
   int hash_name = hash_function(name, d->curHashSize);
-  struct UserNode *temp, *next;
+  struct UserNode *temp_id, *prev_id, *temp_name, *prev_name;
 
-  for(temp=d->hashtable_name[hash_name]->next_name;temp!=NULL;temp=next){
-    if(!strcmp(temp->name, name)){
-      if(temp->prev_id){
-        temp->prev_id->next_id = temp->next_id;
+  if(d->numItems){
+    temp_name = d->hashtable_name[hash_name]->next_name;
+    prev_name = d->hashtable_name[hash_name];
+    while(temp_name){
+      if(!strcmp(temp_name->name, name)){
+        /*remove from name hash table*/
+        prev_name->next_name = temp_name->next_name;
+
+        /*remove from ID hash table*/
+        int hash_id = hash_function(temp_name->id, d->curHashSize);
+        temp_id = d->hashtable_id[hash_id]->next_id;
+        prev_id = d->hashtable_id[hash_id];
+        while(temp_id){
+          if(temp_id == temp_name){
+            prev_id->next_id = temp_id->next_id;
+            break;
+          }
+          prev_id = temp_id;
+          temp_id = temp_id->next_id;
+        }
+        free(temp_name);
+        
+        d->numItems--;
+        //iteration(d);
+        return 0;
       }
-      if(temp->prev_name){
-        temp->prev_name->next_name = temp->next_name;
-      }
-      if(temp->next_id){
-        temp->next_id->prev_id = temp->prev_id;
-      }
-      if(temp->next_name){
-        temp->next_name->prev_name = temp->prev_name;
-      }
-      free(temp);
-      d->numItems--;
-      //iteration(d);
-      return 0;
+      prev_name = temp_name;
+      temp_name = temp_name->next_name;
     }
-    next = temp->next_name;
   }
 
   fprintf(stderr, "No such name\n");
-  //iteration(d);
   return (-1);
 }
 
@@ -266,14 +272,15 @@ int GetPurchaseByID(DB_T d, const char* id){
   if(!d || !id) return (-1);
 
   int hash_id = hash_function(id, d->curHashSize);
-  struct UserNode *temp, *next;
+  struct UserNode *temp;
 
   if(d->numItems){
-    for(temp = d->hashtable_id[hash_id]->next_id;temp!=NULL;temp = next){
+    temp = d->hashtable_id[hash_id]->next_id;
+    while(temp){
       if(!strcmp(temp->id, id)){
         return temp->purchase;
       }
-      next = temp->next_id;
+      temp = temp->next_id;
     }
   }
 
@@ -286,14 +293,15 @@ int GetPurchaseByName(DB_T d, const char* name){
   if(!d || !name) return (-1);
 
   int hash_name = hash_function(name, d->curHashSize);
-  struct UserNode *temp, *next;
+  struct UserNode *temp;
 
   if(d->numItems){
-    for(temp = d->hashtable_name[hash_name]->next_name;temp!=NULL;temp = next){
+    temp = d->hashtable_name[hash_name]->next_name;
+    while(temp){
       if(!strcmp(temp->name, name)){
         return temp->purchase;
       }
-      next = temp->next_name;
+      temp = temp->next_name;
     }
   }
 
