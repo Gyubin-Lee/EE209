@@ -42,8 +42,6 @@ CreateCustomerDB(void)
     return NULL;
   }
   return d;
-
-  return NULL;
 }
 /*--------------------------------------------------------------------*/
 void
@@ -118,8 +116,12 @@ RegisterCustomer(DB_T d, const char *id,
     return -1;
   }
 
-  user->id = strdup(id);
-  user->name = strdup(name);
+  user->id = (char *)malloc(100);
+  if(!user->id) assert(0);
+  memcpy(user->id, id, strlen(id)+1);
+  user->name = (char *)malloc(100);
+  if(!user->name) assert(0);
+  memcpy(user->name, name, strlen(name)+1);
   user->purchase = purchase;
 
   for(i=0;i<d->curArrSize;i++){
