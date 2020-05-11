@@ -35,39 +35,6 @@ static int hash_function(const char *pcKey, int iBucketCount)
    return (int)(uiHash % (unsigned int)iBucketCount);
 }
 
-/*Just for debugging*/
-static void iteration(DB_T d){
-  struct UserNode *temp;
-  int i, count;
-
-  printf("------Iterating by ID------\n");
-  count = 0;
-  for(i=0;i<d->curHashSize;i++){
-    if(d->hashtable_id[i]->next_id){
-      temp = d->hashtable_id[i]->next_id;
-      while(temp){
-        printf("(%s, %s, %d)\n", temp->id, temp->name, temp->purchase);
-        temp = temp->next_id;
-        count++;
-      }
-    }
-  }
-  printf("The number of Items is %d\n", count);
-  count=0;
-  printf("-----Iterating by name-----\n");
-  for(i=0;i<d->curHashSize;i++){
-    if(d->hashtable_name[i]->next_name){
-      temp = d->hashtable_name[i]->next_name;
-      while(temp){
-        printf("(%s, %s, %d)\n", temp->id, temp->name, temp->purchase);
-        temp = temp->next_name;
-        count++;
-      }
-    }
-  }
-  printf("The number of Items is %d\n", count);
-}
-
 /*resize the size of the hash-tables*/
 static void resize(DB_T d){
   struct UserNode **newIDTable, **newNameTable;
@@ -77,20 +44,36 @@ static void resize(DB_T d){
   int newSize = 2*d->curHashSize;
 
   /*make new ID hashtable*/
-  newIDTable = (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
+  newIDTable = 
+  (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
   if(newIDTable){
     for(i=0;i<newSize;i++){
       head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
-      if(head) newIDTable[i] = head;
+      if(!head){
+        fprintf(stderr, "fail to calloc usernode\n");
+        assert(0);
+      }
+      newIDTable[i] = head;
     }
+  } else{
+    fprintf(stderr, "fail to calloc newIDTable\n");
+    assert(0);
   }
   /*make new Name hashtable*/
-  newNameTable = (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
+  newNameTable = 
+  (struct UserNode **)calloc(newSize, sizeof(struct UserNode *));
   if(newNameTable){
     for(i=0;i<newSize;i++){
       head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
-      if(head) newNameTable[i] = head;
+      if(!head){
+        fprintf(stderr, "fail to calloc usernode\n");
+        assert(0);
+      }
+      newNameTable[i] = head;
     }
+  } else{
+    fprintf(stderr, "fail to calloc newNameTable\n");
+    assert(0);
   }
 
   /*copy user information*/
@@ -98,6 +81,10 @@ static void resize(DB_T d){
     temp = d->hashtable_id[i]->next_id;
     while(temp){
       user = (struct UserNode*)calloc(1, sizeof(struct UserNode));
+      if(!user){
+        fprintf(stderr, "Fail to calloc user\n");
+        assert(0);
+      }
       user->id = strdup(temp->id);
       user->name = strdup(temp->name);
       user->purchase = temp->purchase;
@@ -148,27 +135,44 @@ DB_T CreateCustomerDB(void){
   struct UserNode *head;
   
   /*make id hashtable*/
-  table = (struct UserNode **)calloc(BASE_SIZE, sizeof(struct UserNode *));
+  table = 
+  (struct UserNode **)calloc(BASE_SIZE, sizeof(struct UserNode *));
   if(table){
     for(int i=0;i<BASE_SIZE;i++){
       head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
-      if(head) table[i] = head;
+      if(!head){
+        fprintf(stderr, "fail to calloc head\n");
+        assert(0);
+      }
+      table[i] = head;
     }
     d->hashtable_id = table;
-  }
+  } else{
+    fprintf(stderr, "fail to calloc table\n");
+    assert(0);
+  } 
   /*make name hashtable*/
-  table = (struct UserNode **)calloc(BASE_SIZE, sizeof(struct UserNode *));
+  table = 
+  (struct UserNode **)calloc(BASE_SIZE, sizeof(struct UserNode *));
   if(table){
     for(int i=0;i<BASE_SIZE;i++){
       head = (struct UserNode *)calloc(1, sizeof(struct UserNode));
-      if(head) table[i] = head;
+      if(!head){
+        fprintf(stderr, "fail to calloc head\n");
+        assert(0);
+      }
+      table[i] = head;
     }
     d->hashtable_name = table;
-  }
+  } else{
+    fprintf(stderr, "fail to calloc table\n");
+    assert(0);
+  } 
 }
 
 /*destory db and its associated memory */
 void DestroyCustomerDB(DB_T d){
+  /*If d is empty, return and end the function*/
   if(!d) return;
 
   struct UserNode *temp, *next;
@@ -185,16 +189,19 @@ void DestroyCustomerDB(DB_T d){
   free(d->hashtable_id);
   free(d->hashtable_name);
 
+  /*free the DB*/
   free(d);
 }
 
 /* register a customer with (name, id, purchase) */
-int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purchase){
+int  RegisterCustomer
+(DB_T d, const char *id, const char *name, const int purchase){
+  /*input validation*/
   if(!d || !id || !name || purchase<=0){
     return -1;
   }
 
-  /*resize*/
+  /*resize the hashtables*/
   if(d->numItems > 0.75*d->curHashSize && d->curHashSize<=2^19){
     resize(d);
   }
@@ -226,7 +233,12 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
   }
 
   /*register*/
-  struct UserNode *newUser = (struct UserNode*)calloc(1, sizeof(struct UserNode));
+  struct UserNode 
+  *newUser = (struct UserNode*)calloc(1, sizeof(struct UserNode));
+  if(!newUser){
+    fprintf(stderr, "Fail to calloc newUser\n");
+    return -1;
+  }
 
   newUser->id = strdup(id);
   newUser->name = strdup(name);
@@ -244,14 +256,12 @@ int  RegisterCustomer(DB_T d, const char *id, const char *name, const int purcha
 
   d->numItems++;
 
-  //iteration(d);
-
   return 0;
 }
 
 /* unregister a customer with 'id' */
 int UnregisterCustomerByID(DB_T d, const char *id){
-
+  /*input validation*/
   if(!d || !id){
     return (-1);
   }
@@ -259,6 +269,7 @@ int UnregisterCustomerByID(DB_T d, const char *id){
   int hash_id = hash_function(id, d->curHashSize);
   struct UserNode *temp_id, *prev_id, *temp_name, *prev_name;
 
+  /*find id and unregister*/
   if(d->numItems){
     temp_id = d->hashtable_id[hash_id]->next_id;
     prev_id = d->hashtable_id[hash_id];
@@ -266,7 +277,6 @@ int UnregisterCustomerByID(DB_T d, const char *id){
       if(!strcmp(temp_id->id, id)){
         /*remove from ID hash table*/
         prev_id->next_id = temp_id->next_id;
-
         /*remove from name hash table*/
         int hash_name = hash_function(temp_name->name, d->curHashSize);
         temp_name = d->hashtable_name[hash_name]->next_name;
@@ -282,7 +292,6 @@ int UnregisterCustomerByID(DB_T d, const char *id){
         free(temp_id);
         
         d->numItems--;
-        //iteration(d);
         return 0;
       }
       prev_id = temp_id;
@@ -296,10 +305,12 @@ int UnregisterCustomerByID(DB_T d, const char *id){
 
 /* unregister a customer with 'name' */
 int UnregisterCustomerByName(DB_T d, const char *name){
+  /*input validation*/
   if(!d || !name){
     return (-1);
   }
 
+  /*find name and unregister*/
   int hash_name = hash_function(name, d->curHashSize);
   struct UserNode *temp_id, *prev_id, *temp_name, *prev_name;
 
@@ -312,7 +323,8 @@ int UnregisterCustomerByName(DB_T d, const char *name){
         prev_name->next_name = temp_name->next_name;
 
         /*remove from ID hash table*/
-        int hash_id = hash_function(temp_name->id, d->curHashSize);
+        int hash_id = 
+        hash_function(temp_name->id, d->curHashSize);
         temp_id = d->hashtable_id[hash_id]->next_id;
         prev_id = d->hashtable_id[hash_id];
         while(temp_id){
@@ -340,9 +352,10 @@ int UnregisterCustomerByName(DB_T d, const char *name){
 
 /* get the purchase amount of a user whose ID is 'id' */
 int GetPurchaseByID(DB_T d, const char* id){
-
+  /*input validation*/
   if(!d || !id) return (-1);
 
+  /*find id and return purchase*/
   int hash_id = hash_function(id, d->curHashSize);
   struct UserNode *temp;
 
@@ -362,8 +375,10 @@ int GetPurchaseByID(DB_T d, const char* id){
 
 /* get the purchase amount of a user whose name is 'name' */
 int GetPurchaseByName(DB_T d, const char* name){
+  /*input validation*/
   if(!d || !name) return (-1);
 
+  /*find name and return purchase*/
   int hash_name = hash_function(name, d->curHashSize);
   struct UserNode *temp;
 
@@ -384,6 +399,7 @@ int GetPurchaseByName(DB_T d, const char* name){
 /* iterate all valid user items once, evaluate fp for each valid user
    and return the sum of all fp function calls */
 int GetSumCustomerPurchase(DB_T d, FUNCPTR_T fp){
+  /*input validation*/
   if(!d || !fp) return (-1);
 
   int sum = 0;
@@ -391,6 +407,7 @@ int GetSumCustomerPurchase(DB_T d, FUNCPTR_T fp){
 
   struct UserNode *temp;
 
+  /*iterating the hashtable*/
   for(i=0;i<d->curHashSize;i++){
     temp = d->hashtable_id[i]->next_id;
     while(temp){

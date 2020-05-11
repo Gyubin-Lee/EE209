@@ -49,21 +49,23 @@ CreateCustomerDB(void)
 void
 DestroyCustomerDB(DB_T d)
 {
-  /* fill out this function */
+  /*If d is empty, return and end the function*/
   if(!d){
     return;
   }
 
+  /*free all users*/
   for(unsigned int i=0;i<d->curArrSize; i++){
     if(d->pArray[i]){
       free(d->pArray[i]);
     }
   }
-
+  /*free the user array*/
   if(d->pArray){
     free(d->pArray);
   }
 
+  /*free the DB*/
   free(d);
 }
 /*--------------------------------------------------------------------*/
@@ -71,27 +73,29 @@ int
 RegisterCustomer(DB_T d, const char *id,
 		 const char *name, const int purchase)
 {
-  /* fill out this function */
-
+  /*input validation*/
   if(!d || !id || !name || purchase<=0){
     return -1;
   }
 
   unsigned int i;
 
+  /*check whether the item already exists*/
   if(d->numItems){
     for(i=0;i<d->curArrSize;i++){
       if(!(d->pArray[i])){
         continue;
       }
 
-      if(!strcmp(d->pArray[i]->id, id) || !strcmp(d->pArray[i]->name, name)){
+      if(!strcmp(d->pArray[i]->id, id) || 
+      !strcmp(d->pArray[i]->name, name)){
         fprintf(stderr, "Item already exist\n");
         return -1;
       }
     }
   }
 
+  /*resize the array*/
   if(d->curArrSize == d->numItems){
     struct UserInfo **past = d->pArray;
     unsigned int past_s = d->curArrSize;
@@ -107,7 +111,12 @@ RegisterCustomer(DB_T d, const char *id,
     memcpy(d->pArray, past, past_s*sizeof(struct UserInfo*));
   }
   
+  /*register*/
   struct UserInfo* user = calloc(1, sizeof(struct UserInfo));
+  if(!user){
+    fprintf(stderr, "Fail to calloc userinfo\n");
+    return -1;
+  }
 
   user->id = strdup(id);
   user->name = strdup(name);
@@ -121,19 +130,18 @@ RegisterCustomer(DB_T d, const char *id,
     }
   }
 
-  assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
 int
 UnregisterCustomerByID(DB_T d, const char *id)
 {
-  /* fill out this function */
-
+  /*input validation*/
   if(!d || !id){
     return (-1);
   }
 
+  /*find id and unregister*/
   if(d->numItems){
     for(unsigned int i=0;i<d->curArrSize;i++){  
       if(!d->pArray[i]){
@@ -155,7 +163,6 @@ UnregisterCustomerByID(DB_T d, const char *id)
   }
 
   fprintf(stderr, "No such id\n");
-  //assert(0);
   return (-1);
 }
 
@@ -163,12 +170,12 @@ UnregisterCustomerByID(DB_T d, const char *id)
 int
 UnregisterCustomerByName(DB_T d, const char *name)
 {
-  /* fill out this function */
-
+  /*input validation*/
   if(!d || !name){
     return (-1);
   }
 
+  /*find name and unregister*/
   if(d->numItems){
     for(unsigned int i=0;i<d->curArrSize;i++){
       if(!d->pArray[i]){
@@ -189,17 +196,16 @@ UnregisterCustomerByName(DB_T d, const char *name)
   }
 
   fprintf(stderr, "No such name\n");
-  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
 int
 GetPurchaseByID(DB_T d, const char* id)
 {
-  /* fill out this function */
-
+  /*input validation*/
   if(!d || !id) return (-1);
 
+  /*find id and return purchase*/
   if(d->numItems){
     for(int i=0;i<d->curArrSize;i++){
       struct UserInfo *temp = d->pArray[i];
@@ -215,16 +221,16 @@ GetPurchaseByID(DB_T d, const char* id)
   }
 
   fprintf(stderr, "No such id");
-  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
 int
 GetPurchaseByName(DB_T d, const char* name)
 {
-  /* fill out this function */
+  /*input validation*/
   if(!d || !name) return (-1);
 
+  /*find name and return purchase*/
   if(d->numItems){
     for(int i=0;i<d->curArrSize;i++){
       struct UserInfo *temp = d->pArray[i];
@@ -240,18 +246,18 @@ GetPurchaseByName(DB_T d, const char* name)
   }
 
   fprintf(stderr, "No such name");
-  //assert(0);
   return (-1);
 }
 /*--------------------------------------------------------------------*/
 int
 GetSumCustomerPurchase(DB_T d, FUNCPTR_T fp)
 {
-  /* fill out this function */
+  /*input validation*/
   if(!d || !fp) return (-1);
 
   int sum = 0;
 
+  /*iterating the array*/
   for(unsigned int i=0;i<d->curArrSize;i++){ 
     struct UserInfo *temp = d->pArray[i];
     
