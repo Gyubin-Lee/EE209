@@ -85,8 +85,12 @@ static void resize(DB_T d){
         fprintf(stderr, "Fail to calloc user\n");
         assert(0);
       }
-      user->id = strdup(temp->id);
-      user->name = strdup(temp->name);
+      user->id = (char *)malloc(100);
+      if(!user->id) assert(0);
+      memcpy(user->id, temp->id, strlen(temp->id)+1);
+      user->name = (char *)malloc(100);
+      if(!user->name) assert(0);
+      memcpy(user->name, temp->name, strlen(temp->name)+1);
       user->purchase = temp->purchase;
       temp = temp->next_id;
       
@@ -107,6 +111,8 @@ static void resize(DB_T d){
   for(int b=0;b<d->curHashSize;b++){
     for(temp=d->hashtable_id[b];temp!=NULL;temp=next){
       next = temp->next_id;
+      free(temp->id);
+      free(temp->name);
       free(temp);
     }
   }
@@ -202,15 +208,14 @@ int  RegisterCustomer
   }
 
   /*resize the hashtables*/
-  if(d->numItems > 0.75*d->curHashSize && d->curHashSize<=2^19){
+  if(d->numItems > 0.75*d->curHashSize && d->curHashSize<=524288){
     resize(d);
   }
 
-  unsigned int i;
   int hash_id = hash_function(id, d->curHashSize);
   int hash_name = hash_function(name, d->curHashSize);
   
-  struct UserNode *temp, *next;
+  struct UserNode *temp;
 
   /*check whether the item already exists*/
   if(d->numItems){
@@ -240,8 +245,12 @@ int  RegisterCustomer
     return -1;
   }
 
-  newUser->id = strdup(id);
-  newUser->name = strdup(name);
+  newUser->id = (char *)malloc(100);
+  if(!newUser->id) assert(0);
+  memcpy(newUser->id, id, strlen(id)+1);
+  newUser->name = (char *)malloc(100);
+  if(!newUser->name) assert(0);
+  memcpy(newUser->name, name, strlen(name)+1);
   newUser->purchase = purchase;
 
   struct UserNode *head;
@@ -278,7 +287,7 @@ int UnregisterCustomerByID(DB_T d, const char *id){
         /*remove from ID hash table*/
         prev_id->next_id = temp_id->next_id;
         /*remove from name hash table*/
-        int hash_name = hash_function(temp_name->name, d->curHashSize);
+        int hash_name = hash_function(temp_id->name, d->curHashSize);
         temp_name = d->hashtable_name[hash_name]->next_name;
         prev_name = d->hashtable_name[hash_name];
         while(temp_name){
@@ -289,6 +298,8 @@ int UnregisterCustomerByID(DB_T d, const char *id){
           prev_name = temp_name;
           temp_name = temp_name->next_name;
         }
+        free(temp_id->id);
+        free(temp_id->name);
         free(temp_id);
         
         d->numItems--;
@@ -335,6 +346,8 @@ int UnregisterCustomerByName(DB_T d, const char *name){
           prev_id = temp_id;
           temp_id = temp_id->next_id;
         }
+        free(temp_name->id);
+        free(temp_name->name);
         free(temp_name);
         
         d->numItems--;
