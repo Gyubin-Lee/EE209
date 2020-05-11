@@ -173,7 +173,9 @@ DB_T CreateCustomerDB(void){
   } else{
     fprintf(stderr, "fail to calloc table\n");
     assert(0);
-  } 
+  }
+
+  return d;
 }
 
 /*destory db and its associated memory */
