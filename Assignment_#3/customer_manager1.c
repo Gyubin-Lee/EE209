@@ -55,6 +55,8 @@ DestroyCustomerDB(DB_T d)
   /*free all users*/
   for(unsigned int i=0;i<d->curArrSize; i++){
     if(d->pArray[i]){
+      free(d->pArray[i]->id);
+      free(d->pArray[i]->name);
       free(d->pArray[i]);
     }
   }

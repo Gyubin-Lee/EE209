@@ -190,6 +190,8 @@ void DestroyCustomerDB(DB_T d){
   for(b=0;b<d->curHashSize;b++){
     for(temp=d->hashtable_id[b];temp!=NULL;temp=next){
       next = temp->next_id;
+      free(temp->id);
+      free(temp->name);
       free(temp);
     }
   }
