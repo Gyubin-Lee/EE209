@@ -216,21 +216,11 @@ power:
 	cmpl $MINIMUM_ITEM, (stackSize)
 	jb stackEmptyError
 
-	popl %edi ##exponent
-	popl %esi ##base
-
-	xor %ecx, %ecx
-	movl $1, %eax
-	power_loop:
-		cmpl %ecx, %edi
-		je power_end
-		imul %esi
-		addl $1, %ecx
-		jmp power_loop
-	power_end:
-		pushl %eax
-		call decSize
-		jmp input
+	call powerFunction
+	addl $8, %esp
+	pushl %eax
+	call decSize
+	jmp input
 
 print:
 	cmpl $0, (stackSize)
@@ -297,6 +287,26 @@ stackEmptyError:
 	call printf
 	addl $4, %esp
 	jmp input
+
+powerFunction:
+	pushl %ebp
+	movl %esp, %ebp
+	
+	movl 8(%esp), %edi ##exponent
+	movl 12(%esp), %esi ##base
+
+	xor %ecx, %ecx
+	movl $1, %eax
+	power_loop:
+		cmpl %ecx, %edi
+		je power_end
+		imul %esi
+		addl $1, %ecx
+		jmp power_loop
+	power_end:
+		movl %ebp, %esp
+		popl %ebp
+		ret
 
 quit:	
 	## return 0
