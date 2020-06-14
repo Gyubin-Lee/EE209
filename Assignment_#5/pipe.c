@@ -37,7 +37,7 @@ pipeline(char ***cmd, char *IN, char *OUT)
             }
 
             if(*(cmd + 1) == NULL && OUT != NULL){
-                if((fds = open(OUT, O_RDWR|O_CREAT, 0644)) == -1){
+                if((fds = open(OUT, O_RDWR|O_CREAT|O_TRUNC, 0644)) == -1){
                     printf("something?\n");
                 }
                 close(1);

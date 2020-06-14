@@ -1,12 +1,3 @@
--rw-r--r-- 1 gyubin gyubin   775  6월  8 00:28 cause.txt
--rw-r--r-- 1 gyubin gyubin   509  6월  7 20:47 expected_result.txt
--rw-r--r-- 1 gyubin gyubin  1858  6월  8 13:29 pipe_recurrence_with_redirec.c
--rw-r--r-- 1 gyubin gyubin   248  6월  8 13:05 result.txt
--rwxr-xr-x 1 gyubin gyubin 17216  6월  7 20:59 temp
--rw-r--r-- 1 gyubin gyubin  1144  6월  7 20:59 temp.c
--rwxr-xr-x 1 gyubin gyubin 32416  6월  8 12:45 testLex
--rw-r--r-- 1 gyubin gyubin  1204  6월  6 16:38 tokenizingTest.c
--rwxr-xr-x 1 gyubin gyubin 17216  6월  7 20:59 temp
--rw-r--r-- 1 gyubin gyubin  1144  6월  7 20:59 temp.c
--rwxr-xr-x 1 gyubin gyubin 32416  6월  8 00:26 testLex
--rw-r--r-- 1 gyubin gyubin  1204  6월  6 16:38 tokenizingTest.c
+-rw-r--r-- 1 gyubin gyubin  5166  6월 14 15:43 main.c
+-rw-r--r-- 1 gyubin gyubin  3618  6월 14 15:11 makecommand.c
+-rw-r--r-- 1 gyubin gyubin   228  6월 14 14:16 makecommand.h

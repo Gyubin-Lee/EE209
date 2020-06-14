@@ -48,13 +48,13 @@ void execute_line(char* buf){
 
          if(!command) return;
 
+         printf("input: %s, output: %s\n", command->input, command->output);
+
          argv = command->com[0];
 
          if(command->numItem < 2){
             
-            if(!strcmp(argv[0], "setenv")){          
-               char *temp1;
-               
+            if(!strcmp(argv[0], "setenv")){              
                if(!argv[2]){
                   if(!argv[1]){
                      fprintf(stderr, "./ish: need more arguments\n");
@@ -105,11 +105,11 @@ void execute_line(char* buf){
             } 
             
             else{
-               int pid, fd1, status;
+               int pid, status;
                pid = fork();
                if(pid == 0){
                   if(command->input){
-                     fd1 = open(command->input, O_RDWR);
+                     int fd1 = open(command->input, O_RDWR);
                      close(0);
                      dup(fd1);
                      close(fd1);
