@@ -18,7 +18,6 @@ void execute_line(char* buf){
    DynArray_T oTokens;
    oTokens = DynArray_new(0);
    int iSuccessful;
-   int status;
 
    /*Lexical Analysis and tokenize*/
    iSuccessful = lexLine(buf, oTokens);
@@ -48,7 +47,7 @@ void execute_line(char* buf){
          if(command->numItem < 2){
             
             if(!strcmp(argv[0], "setenv")){          
-               char *temp1, *temp2;
+               char *temp1;
                
                if(!argv[2]){
                   if(!argv[1]){
@@ -137,9 +136,6 @@ void execute_ishrc(){
    char *ishrc_path;
    char *filename = "/.ishrc";
    char line[MAX_STR_LEN];
-   char* CMD_STR = "%";
-   int CMD_STR_LEN = 2;
-   int i;
    FILE *fp;
 
    ishrc_path = getenv("HOME");
@@ -175,7 +171,6 @@ void handleALRM(int iSig){
 }
 
 int main(){
-   int i;
    int CMD_STR_LEN = 2;
    char *CMD_STR = "% ";
    char buf[MAX_STR_LEN + 1];
@@ -194,7 +189,7 @@ int main(){
    execute_ishrc();
 
    while(1){      
-      if(i = write(1, CMD_STR, CMD_STR_LEN) != CMD_STR_LEN){
+         write(1, CMD_STR, CMD_STR_LEN);
          fprintf(stderr, "write error\n");
          return -1;
       }
