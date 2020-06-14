@@ -1,0 +1,3 @@
+-rw-r--r-- 1 gyubin gyubin   722  6월 12 13:09 cause.txt
+-rw-r--r-- 1 gyubin gyubin     0  6월 12 13:16 expected_result.txt
+-rw-r--r-- 1 gyubin gyubin   185  6월 12 13:12 result.txt
