@@ -28,17 +28,23 @@ void execute_line(char* buf){
          size_t len = DynArray_getLength(oTokens);
          struct Token **temp = calloc(sizeof(struct Token *), len);
          char **argv = calloc(sizeof(char *), len+1);
+         int rdIndex[len];
 
          DynArray_toArray(oTokens, (void **)temp);
    
          size_t i;        
          for (i=0; i<len;i++){
             argv[i] = temp[i]->pcValue;
+            if(temp[i]->type == RD){
+               rdIndex[i] = 1;
+            } else{
+               rdIndex[i] = 0;
+            }
          }
 
          free(temp);
 
-         struct Command *command = make_com(argv, len);
+         struct Command *command = make_com(argv, rdIndex, len);
 
          if(!command) return;
 
@@ -125,11 +131,13 @@ void execute_line(char* buf){
          pipeline(command->com, command->input, command->output);
 
         }
+         free(argv);
+         freeCommand(command);
       }
    
    /*freeing DynArray*/
    DynArray_map(oTokens, freeToken, NULL);
-   DynArray_free(oTokens); 
+   DynArray_free(oTokens);
 }
 
 void execute_ishrc(){
@@ -189,11 +197,7 @@ int main(){
    execute_ishrc();
 
    while(1){      
-         write(1, CMD_STR, CMD_STR_LEN);
-         fprintf(stderr, "write error\n");
-         return -1;
-      }
-
+      write(1, CMD_STR, CMD_STR_LEN);
       fgets(buf, sizeof(buf), stdin);
       execute_line(buf);
    }

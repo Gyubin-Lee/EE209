@@ -1,9 +1,12 @@
 #ifndef DFA_INCLUDED
 #define DFA_INCLUDED
 
+enum {STR, RD};
+
 struct Token
 {
    char *pcValue;
+   int type;
 };
 
 void freeToken(void *pvItem, void *pvExtra);

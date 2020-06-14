@@ -8,6 +8,8 @@ struct Command{
    int numItem;
 };
 
-struct Command *make_com(char** argv, int len);
+struct Command *make_com(char** argv, int* rdIndex, int len);
+
+void freeCommand(struct Command *temp);
 
 #endif

@@ -39,7 +39,7 @@ void freeToken(void *pvItem, void *pvExtra)
 
 /*--------------------------------------------------------------------*/
 
-static struct Token *makeToken(char *pcValue)
+static struct Token *makeToken(char *pcValue, int type)
 
 /* Create and return a Token whose type is eTokenType and whose
    value consists of string pcValue.  Return NULL if insufficient
@@ -61,6 +61,7 @@ static struct Token *makeToken(char *pcValue)
    }
 
    strcpy(psToken->pcValue, pcValue);
+   psToken->type = type;
 
    return psToken;
 }
@@ -129,7 +130,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             if(isspace(c)){
                /* Create a RD token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, RD);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -151,7 +152,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /*Create a RD token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, RD);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -175,7 +176,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /*Create a RD token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, RD);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -198,7 +199,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /* Create a CHAR token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -221,7 +222,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /*Create a CHAR token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -244,7 +245,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             else if ((c == ' ') || (c == '\t')){
                /*Create a CHAR token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -266,7 +267,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             }
             break;
          case STATE_QUOTE:
-            if((c == '\n') || (c == '\0') || (c == '<') || (c == '>') || (c == '|')){
+            if((c == '\n') || (c == '\0')){
                fprintf(stderr, "./ish: Could not find quote pair\n");
                return FALSE;
             }
@@ -283,7 +284,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /* Create a token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -302,7 +303,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             {
                /*Create a token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
@@ -325,7 +326,7 @@ int lexLine(const char *pcLine, DynArray_T oTokens)
             else if ((c == ' ') || (c == '\t')){
                /*Create a token. */
                acValue[iValueIndex] = '\0';
-               psToken = makeToken(acValue);
+               psToken = makeToken(acValue, STR);
                if (psToken == NULL)
                {
                   fprintf(stderr, "Cannot allocate memory\n");
