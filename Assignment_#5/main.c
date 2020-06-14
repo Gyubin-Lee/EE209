@@ -48,8 +48,6 @@ void execute_line(char* buf){
 
          if(!command) return;
 
-         printf("input: %s, output: %s\n", command->input, command->output);
-
          argv = command->com[0];
 
          if(command->numItem < 2){
