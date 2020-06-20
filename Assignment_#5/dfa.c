@@ -7,8 +7,6 @@
 
 #include "dynarray.h"
 #include "dfa.h"
-#include "makecommand.h"
-#include "pipe.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
