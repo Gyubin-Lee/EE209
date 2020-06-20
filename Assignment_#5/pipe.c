@@ -5,9 +5,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 
-void
-pipeline(char ***cmd, char *IN, char *OUT)
-{
+void pipeline(char ***cmd, char *IN, char *OUT){
 	int fd[2];
 	pid_t pid;
 	int temp = 0;
@@ -18,7 +16,7 @@ pipeline(char ***cmd, char *IN, char *OUT)
 	while (*cmd != NULL) {
 		pipe(fd);
 		if ((pid = fork()) == -1) {
-			perror("fork");
+			fprintf(stderr, "fail to fork");
 			exit(1);
 		}
 		else if (pid == 0) {
@@ -29,7 +27,7 @@ pipeline(char ***cmd, char *IN, char *OUT)
 
             if(count == 0 && IN != NULL){
                 if((fds = open(IN, O_RDWR)) == -1){
-                    printf("something?\n");
+                    printf("fail to open %s\n", IN);
                 }
                 close(0);
                 dup(fds);
@@ -38,7 +36,7 @@ pipeline(char ***cmd, char *IN, char *OUT)
 
             if(*(cmd + 1) == NULL && OUT != NULL){
                 if((fds = open(OUT, O_RDWR|O_CREAT|O_TRUNC, 0644)) == -1){
-                    printf("something?\n");
+                    printf("fail to open %s\n", OUT);
                 }
                 close(1);
                 dup(fds);

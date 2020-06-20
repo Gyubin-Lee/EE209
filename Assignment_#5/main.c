@@ -152,9 +152,7 @@ void execute_ishrc(){
       return;
 
    while(fgets(line, sizeof(line), fp)){
-
       printf("%% %s", line);
-
       execute_line(line);
    }
 
@@ -184,8 +182,8 @@ int main(){
    sigset_t sSet;
    sigemptyset(&sSet);
    sigaddset(&sSet, SIGINT);
-   sigaddset(&sSet, SIGALRM);
    sigaddset(&sSet, SIGQUIT);
+   sigaddset(&sSet, SIGALRM);
    sigprocmask(SIG_UNBLOCK, &sSet, NULL);
 
    signal(SIGINT, SIG_IGN);
