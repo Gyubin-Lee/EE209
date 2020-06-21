@@ -9,37 +9,36 @@
 
 void pipeline(char ***cmd, char *IN, char *OUT){
 	int fd[2];
-	pid_t pid;
+	int pid, status;
 	int temp = 0;
     int count = 0;
     int fds;
-	int status;
 
-	while (*cmd != NULL) {
+	while(*cmd != NULL){
 		pipe(fd);
-		if ((pid = fork()) == -1) {
+		if((pid = fork()) == -1){
 			fprintf(stderr, "fail to fork");
 			exit(1);
 		}
 		
-		if (pid == 0) {
+		if(pid == 0){
 			dup2(temp, 0);
-			if (*(cmd + 1) != NULL) {
+			if(*(cmd+1) != NULL){
 				dup2(fd[1], 1);
 			}
 
             if(count == 0 && IN != NULL){
                 if((fds = open(IN, O_RDWR)) == -1){
-                    printf("fail to open %s\n", IN);
+                    fprintf(stderr, "fail to open %s\n", IN);
                 }
                 close(0);
                 dup(fds);
                 close(fds);
             }
 
-            if(*(cmd + 1) == NULL && OUT != NULL){
+            if(*(cmd+1) == NULL && OUT != NULL){
                 if((fds = open(OUT, O_RDWR|O_CREAT|O_TRUNC, 0644)) == -1){
-                    printf("fail to open %s\n", OUT);
+                    fprintf(stderr, "fail to open %s\n", OUT);
                 }
                 close(1);
                 dup(fds);
